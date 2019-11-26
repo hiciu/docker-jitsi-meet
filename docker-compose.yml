@@ -34,6 +34,8 @@ services:
             - ENABLE_JIGASI_TRANSCRIBER
             - ETHERPAD_URL_BASE
             - TZ
+            - TURN_ENABLE_JVB
+            - TURN_ENABLE_JVB
         networks:
             meet.jitsi:
                 aliases:
@@ -93,6 +95,13 @@ services:
             - ENABLE_RECORDING
             - ENABLE_SPEAKER_STATS
             - TZ
+            - TURN_ENABLE_JVB
+            - TURN_ENABLE_JVB
+            - TURN_SECRET
+            - TURN_TYPE
+            - TURN_HOST
+            - TURN_PORT
+            - TURN_TRANSPORT
         networks:
             meet.jitsi:
                 aliases:

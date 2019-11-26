@@ -291,6 +291,27 @@ The brige selection stratagy is:
 
 * `RegionBasedBridgeSelectionStrategy` - matches the region of the clients to the region of the Jitsi Videobridge instances. Used by default.
 
+#### TURN(S) server
+For enable turn server for P2P and/or JVB connections, please set variables below
+
+Variable | Description | Default value
+--- | --- | ---
+`TURN_ENABLE_P2P` | Use TURN for P2P connections | 0
+`TURN_ENABLE_JVB` | Use TURN for JVB (bridge mode) connections | 0
+`TURN_REALM` | Realm to be used for the users with long-term credentials mechanism or with TURN REST API | realm
+`TURN_SECRET` | Secret for connect to TURN server | keepthissecret
+`TURN_ADMIN_USER` | Username for admin panel | admin
+`TURN_ADMIN_SECRET` | Password for admin panel | changeme
+`TURN_ADMIN_PORT` | HTTP(s) port for acess to admin panel | 8443
+`TURN_TYPE` | Type of TURN(s)/STUN | turns
+`TURN_HOST` | Annonce FQDN or IP address of turn server | 8.8.8.8
+`TURN_PORT` | TLS/TCP/UDP turn port for connection | 5349
+`TURN_STUN_PORT` | TLS/TCP/UDP turn port for connection | 3478
+`TURN_TRANSPORT` | transport for turn connection | tcp
+`TURN_RTP_MIN` | RTP start port for turn/turns connections | 10000
+`TURN_RTP_MAX` | RTP end port for turn/turns connections | 11000
+
+
 ### Running on a LAN environment
 
 If running in a LAN environment (as well as on the public Internet, via NAT) is a requirement,

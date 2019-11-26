@@ -86,6 +86,18 @@ if [[ ! -f /config/config.js ]]; then
              /config/config.js
     fi
 
+    if [[ $TURN_ENABLE_JVB -eq 1 || "$TURN_ENABLE_JVB" == "true" ]]; then
+        sed -i \
+             -e "s#// useStunTurn:.*, //jvb#useStunTurn: true, //jvb#" \
+             /config/config.js
+    fi
+
+    if [[ $TURN_ENABLE_P2P -eq 1 || "$TURN_ENABLE_P2P" == "true" ]]; then
+        sed -i \
+             -e "s#// useStunTurn:.*, //p2p#useStunTurn: true, //p2p#" \
+             /config/config.js
+    fi
+
     if [[ $ENABLE_CHROME_SCREEN_SHARING -eq 1 ]]; then
         sed -i \
             -e "s#desktopSharingChromeDisabled:.*#desktopSharingChromeDisabled: false,#" \

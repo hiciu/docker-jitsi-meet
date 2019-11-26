@@ -70,6 +70,9 @@ modules_enabled = {
 		--"watchregistrations"; -- Alert admins of registrations
 		--"motd"; -- Send a message to users when they log in
 		--"legacyauth"; -- Legacy authentication. Only used by some old clients and bots.
+                {{ if or (.Env.TURN_ENABLE_P2P | default "0" | toBool) (.Env.TURN_ENABLE_JVB | default "0" | toBool) }}
+		"turncredentials"; -- Use XEP-0215
+                {{ end }}
 };
 
 https_ports = { }

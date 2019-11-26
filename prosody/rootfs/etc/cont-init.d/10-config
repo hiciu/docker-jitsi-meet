@@ -24,7 +24,9 @@ if [[ "$(stat -c %U /config)" != "prosody" ]]; then
 fi
 
 if [[ ! -f $PROSODY_CFG ]]; then
+rootfs/defaults/prosody.cfg.lua
     cp -r /defaults/* /config
+    tpl /defaults/prosody.cfg.lua > $PROSODY_CFG
     tpl /defaults/conf.d/jitsi-meet.cfg.lua > /config/conf.d/jitsi-meet.cfg.lua
 
     prosodyctl --config $PROSODY_CFG register $JICOFO_AUTH_USER $XMPP_AUTH_DOMAIN $JICOFO_AUTH_PASSWORD
