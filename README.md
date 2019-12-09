@@ -1,3 +1,17 @@
+
+
+# source
+
+This is docker-jitsi-meet repo clone, you can find original source under https://github.com/netaskd/docker-jitsi-meet.
+
+# building
+
+```
+$ make JITSI_REPO=hiciu 'JITSI_SERVICES= base base-java web prosody jicofo jvb jibri etherpad' build-all tag-all push-all
+```
+
+---
+
 # Jitsi Meet on Docker
 
 ![](resources/jitsi-docker.png)
