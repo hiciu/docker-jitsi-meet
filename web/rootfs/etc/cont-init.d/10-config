@@ -2,40 +2,54 @@
 
 # make our folders
 mkdir -p \
-    /config/{nginx/site-confs,keys} \
+    /config/{nginx/site-confs,keys,acme-challenges} \
     /run \
     /var/lib/nginx/tmp/client_body \
     /var/tmp/nginx
 
-# generate keys (maybe)
+# generate keys
 if [[ $DISABLE_HTTPS -ne 1 ]]; then
+    if [[ -f /config/keys/cert.key && -f /config/keys/cert.crt ]]; then
+        echo "using keys found in /config/keys"
+    else
+        echo "generating self-signed keys in /config/keys, you can replace these with your own keys if required"
+        SUBJECT="/C=US/ST=TX/L=Austin/O=jitsi.org/OU=Jitsi Server/CN=*"
+        openssl req -new -x509 -days 3650 -nodes -out /config/keys/cert.crt -keyout /config/keys/cert.key -subj "$SUBJECT"
+    fi
+
+    if [[ ! -f /config/nginx/dhparams.pem ]]; then
+        echo "generating dhparams..."
+        openssl dhparam -out /config/nginx/dhparams.pem 2048
+    fi
+
     if [[ $ENABLE_LETSENCRYPT -eq 1 ]]; then
         if [[ ! -f /etc/letsencrypt/live/$LETSENCRYPT_DOMAIN/fullchain.pem ]]; then
-            certbot certonly \
-                --noninteractive \
-                --standalone \
-                --preferred-challenges http \
-                -d $LETSENCRYPT_DOMAIN \
-                --agree-tos \
-                --email $LETSENCRYPT_EMAIL
+            mkdir -p /etc/letsencrypt/live/$LETSENCRYPT_DOMAIN
+            cp /config/keys/cert.crt /etc/letsencrypt/live/$LETSENCRYPT_DOMAIN/fullchain.pem
+            cp /config/keys/cert.key /etc/letsencrypt/live/$LETSENCRYPT_DOMAIN/privkey.pem
             cp /defaults/letsencrypt-renew /etc/cron.monthly/
+
+            (
+                # start this only after nginx is up and running
+                sleep 30;
+
+                # we've created those dummy directories to make sure that there is something that nginx can start up with
+                rm -rf /etc/letsencrypt/live/$LETSENCRYPT_DOMAIN
+
+                certbot certonly \
+                    --noninteractive \
+                    --webroot -w /config/acme-challenges \
+                    --preferred-challenges http \
+                    -d $LETSENCRYPT_DOMAIN \
+                    --agree-tos \
+                    --email $LETSENCRYPT_EMAIL \
+                    --post-hook 'openresty -c /config/nginx/nginx.conf -s reload'
+            ) &
         fi
-    else
-        # use self-signed certs
-        if [[ -f /config/keys/cert.key && -f /config/keys/cert.crt ]]; then
-            echo "using keys found in /config/keys"
-        else
-            echo "generating self-signed keys in /config/keys, you can replace these with your own keys if required"
-            SUBJECT="/C=US/ST=TX/L=Austin/O=jitsi.org/OU=Jitsi Server/CN=*"
-            openssl req -new -x509 -days 3650 -nodes -out /config/keys/cert.crt -keyout /config/keys/cert.key -subj "$SUBJECT"
-        fi
-    fi
-    if [[ ! -f /config/nginx/dhparams.pem ]]; then
-        openssl dhparam -out /config/nginx/dhparams.pem 2048
     fi
 fi
 
-# copy config files
+# copy config files
 if [[ ! -f /config/nginx/nginx.conf ]]; then
     cp /defaults/nginx.conf /config/nginx/nginx.conf
 fi
@@ -46,6 +60,10 @@ fi
 
 if [[ ! -f /config/nginx/ssl.conf ]]; then
     tpl /defaults/ssl.conf > /config/nginx/ssl.conf
+fi
+
+if [[ ! -f /config/nginx/letsencrypt.conf ]]; then
+    tpl /defaults/letsencrypt.conf > /config/nginx/letsencrypt.conf
 fi
 
 if [[ ! -f /config/nginx/site-confs/default ]]; then

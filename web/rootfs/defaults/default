@@ -1,8 +1,12 @@
 server {
 	listen 80 default_server;
 
+	include /config/nginx/letsencrypt.conf;
+
 	{{ if .Env.ENABLE_HTTP_REDIRECT | default "0" | toBool }}
-	return 301 https://$host$request_uri;
+	location / {
+		return 301 https://$host$request_uri;
+	}
 	{{ else }}
 	include /config/nginx/meet.conf;
 	{{ end }}
@@ -12,6 +16,7 @@ server {
 server {
 	listen 443 ssl;
 
+	include /config/nginx/letsencrypt.conf;
 	include /config/nginx/ssl.conf;
 	include /config/nginx/meet.conf;
 }
